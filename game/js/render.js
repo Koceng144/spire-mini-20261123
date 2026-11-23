@@ -172,8 +172,13 @@ export function layoutHand(hand) {
   const n = cards.length;
   if (!n) return;
   // The hand may fan wider than its 500px column on wide screens (up to
-  // the 560px app width), matching the original desktop look.
-  const containerW = Math.max(hand.clientWidth || 332, Math.min(560, window.innerWidth - 16));
+  // the 560px app width), matching the original desktop look. Fit inside
+  // the padded content box: the horizontal padding absorbs the fan
+  // rotation and hover lift of the edge cards, so they never clip at the
+  // viewport edge (body overflow is hidden).
+  const cs = getComputedStyle(hand);
+  const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  const containerW = Math.max((hand.clientWidth || 332) - padX, Math.min(560, window.innerWidth - 16) - padX);
   const BASE_W = 118, MIN_W = 78;
   let cardW = BASE_W;
   let overlap = 0;
