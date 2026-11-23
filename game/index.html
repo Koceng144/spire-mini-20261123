@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spire Mini — a tiny roguelike deckbuilder</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Title screen with the short tutorial -->
+  <section id="screen-title" class="screen">
+    <div class="title-art" aria-hidden="true">
+      <div class="spire"><div class="spire-tip"></div><div class="spire-body"></div><div class="spire-door"></div></div>
+      <div class="moon"></div>
+    </div>
+    <h1 class="game-title">SPIRE MINI</h1>
+    <p class="tagline">Climb 3 floors. Build your deck. Beat the Warden.</p>
+    <div class="tutorial panel">
+      <h2>How to play</h2>
+      <ul>
+        <li><b>Energy:</b> each turn you get <span class="pip-demo">3</span> energy and draw 5 cards.</li>
+        <li><b>Play cards:</b> click a card, drag it onto the enemy, or press 1–9.</li>
+        <li><b>Read the intent:</b> the badge above the enemy shows its next move — block big attacks!</li>
+        <li><b>Win battles</b> to draft 1 of 3 new cards, or upgrade one you own.</li>
+        <li><b>End turn</b> with the button or Enter. Beat the boss on floor 3 to win the run.</li>
+      </ul>
+    </div>
+    <div class="sample-cards" aria-hidden="true">
+      <div class="card type-attack"><div class="card-top"><div class="cost">1</div><div class="card-name">Lantern Jab</div></div><div class="card-art" style="background:#e4572e33"><svg viewBox="0 0 40 40"><path d="M8 32 L26 8 L32 14 L14 34 Z" fill="#8a93a6" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#e4572e"><span class="shape diamond" style="background:#e4572e"></span>Attack</div><div class="card-text">Deal 6 damage.</div></div>
+      <div class="card type-skill"><div class="card-top"><div class="cost">1</div><div class="card-name">Iron Stance</div></div><div class="card-art" style="background:#2e86ab33"><svg viewBox="0 0 40 40"><path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#9fd4ec" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#2e86ab"><span class="shape circle" style="background:#2e86ab"></span>Skill</div><div class="card-text">Gain 8 Block.</div></div>
+      <div class="card type-power"><div class="card-top"><div class="cost">2</div><div class="card-name">Keen Eye</div></div><div class="card-art" style="background:#8e44ad33"><svg viewBox="0 0 40 40"><path d="M20 3 L24 15 L37 15 L27 23 L30 36 L20 28 L10 36 L13 23 L3 15 L16 15 Z" fill="#e9c46a" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#8e44ad"><span class="shape triangle" style="color:#8e44ad"></span>Power</div><div class="card-text">Draw 1 extra card each turn.</div></div>
+    </div>
+    <button id="btn-start" class="big-btn primary">▶ Start the climb</button>
+    <button id="btn-mute" class="small-btn">🔊 Sound: on</button>
+    <p class="hint">Keyboard: 1–9 play card · Enter end turn · M mute</p>
+  </section>
+
+  <!-- Battle screen -->
+  <section id="screen-battle" class="screen hidden">
+    <header class="battle-top">
+      <div id="floor-banner" class="floor-banner">Floor 1</div>
+      <div id="turn-banner" class="turn-banner">Your turn</div>
+    </header>
+
+    <div id="enemy-zone" class="enemy-zone">
+      <div id="intent-badge" class="intent-badge">⚔ Attack 6</div>
+      <div id="enemy-portrait" class="enemy-portrait"></div>
+      <div class="enemy-name" id="enemy-name">Moss Imp</div>
+      <div class="hp-row">
+        <div class="hp-bar"><div id="enemy-hp-fill" class="hp-fill enemy"></div></div>
+        <div id="enemy-hp-text" class="hp-text">28 / 28</div>
+        <div id="enemy-block" class="block-badge hidden">🛡 0</div>
+      </div>
+      <div id="enemy-status" class="status-row"></div>
+      <div id="floaters" class="floaters"></div>
+    </div>
+
+    <div class="player-zone">
+      <div class="player-stats">
+        <div class="stat-box">
+          <div class="stat-label">❤ HP</div>
+          <div class="hp-bar small"><div id="player-hp-fill" class="hp-fill player"></div></div>
+          <div id="player-hp-text" class="hp-text">50 / 50</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">⚡ Energy</div>
+          <div id="energy-pips" class="energy-pips"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">🛡 Block</div>
+          <div id="player-block" class="stat-value">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Deck / Discard</div>
+          <div id="pile-counts" class="stat-value">10 / 0</div>
+        </div>
+      </div>
+      <div id="player-status" class="status-row"></div>
+      <div id="hand" class="hand"></div>
+      <button id="btn-end-turn" class="big-btn primary end-turn">End Turn ⏎</button>
+    </div>
+  </section>
+
+  <!-- Reward screen -->
+  <section id="screen-reward" class="screen hidden">
+    <h2 class="screen-title">Victory! Choose a card</h2>
+    <p class="screen-sub" id="reward-sub">Add one card to your deck, upgrade one you own, or skip.</p>
+    <div id="reward-cards" class="reward-cards"></div>
+    <div class="reward-actions">
+      <button id="btn-upgrade" class="big-btn">⬆ Upgrade a card instead</button>
+      <button id="btn-skip" class="big-btn ghost">Skip reward</button>
+    </div>
+  </section>
+
+  <!-- Upgrade picker -->
+  <section id="screen-upgrade" class="screen hidden">
+    <h2 class="screen-title">Upgrade which card?</h2>
+    <p class="screen-sub">Upgraded cards get stronger numbers, forever.</p>
+    <div id="upgrade-cards" class="deck-grid"></div>
+    <button id="btn-upgrade-back" class="big-btn ghost">← Back</button>
+  </section>
+
+  <!-- Win screen -->
+  <section id="screen-win" class="screen hidden">
+    <div class="end-art win" aria-hidden="true">🏮</div>
+    <h2 class="screen-title win">THE SPIRE IS LIT!</h2>
+    <p class="screen-sub">The Lantern Warden falls. Your lantern burns at the top of the spire.</p>
+    <div id="win-stats" class="stats-panel panel"></div>
+    <button id="btn-win-restart" class="big-btn primary">↻ Climb again</button>
+  </section>
+
+  <!-- Loss screen -->
+  <section id="screen-lose" class="screen hidden">
+    <div class="end-art lose" aria-hidden="true">🌑</div>
+    <h2 class="screen-title lose">THE LIGHT GOES OUT</h2>
+    <p class="screen-sub" id="lose-sub">Your lantern sputters and dies on floor 1.</p>
+    <div id="lose-stats" class="stats-panel panel"></div>
+    <button id="btn-lose-restart" class="big-btn primary">↻ Try again</button>
+  </section>
+
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
