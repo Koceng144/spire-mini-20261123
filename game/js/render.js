@@ -3,7 +3,7 @@
 // the floating damage numbers all live here. The engine in battle.js knows
 // nothing about the DOM; this file only reads state and events.
 
-import { resolveCard, CARD_TYPES } from './cards.js';
+import { resolveCard, makeCard, CARD_TYPES } from './cards.js';
 import { currentIntent } from './battle.js';
 import { intentText } from './enemies.js';
 
@@ -90,6 +90,27 @@ export function cardElement(instance, opts = {}) {
     (card.upgraded ? '<div class="up-badge">UPGRADED</div>' : '') +
     (opts.keyHint ? '<div class="card-key">' + opts.keyHint + '</div>' : '');
   return el;
+}
+
+// The title screen's poster fan: four real cards (an attack, a burn
+// attack, a block skill and a power) rendered from the same card data
+// and cardElement the game uses, fanned big enough to read at a glance.
+// They are decoration only — not focusable, not playable.
+export function renderSampleCards(el) {
+  const ids = ['jab', 'ember-arc', 'iron-stance', 'keen-eye'];
+  const angles = [-8, -3, 3, 8];
+  const lifts = [10, 0, 0, 10];
+  const layers = [2, 3, 3, 2];
+  el.querySelectorAll('.card').forEach((c) => c.remove());
+  ids.forEach((id, i) => {
+    const c = cardElement(makeCard(id));
+    c.removeAttribute('tabindex');
+    c.removeAttribute('role');
+    c.style.setProperty('--fan', angles[i] + 'deg');
+    c.style.setProperty('--lift', lifts[i] + 'px');
+    c.style.zIndex = String(layers[i]);
+    el.appendChild(c);
+  });
 }
 
 // --- Battle screen ------------------------------------------------------------

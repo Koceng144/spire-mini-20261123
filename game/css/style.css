@@ -66,41 +66,62 @@ body {
   max-width: 500px;
 }
 
-/* ---------- Title ---------- */
-.title-art { position: relative; width: 100%; height: 170px; margin-top: 6px; }
-.moon {
-  position: absolute; right: 12%; top: 4px; width: 54px; height: 54px;
+/* ---------- Title (poster) ----------
+   A fan of four real cards over the moon, a big serif display title,
+   the run at a glance, the tutorial panel, then the start button.
+   The fan cards are rendered from card data by render.js; they are
+   decoration, so their hover only lifts them a little. */
+.poster-fan {
+  position: relative; width: 100%; height: 232px; margin-top: 4px;
+  display: flex; justify-content: center; align-items: flex-end;
+}
+.poster-fan .moon {
+  position: absolute; left: 3%; top: 2px; width: 58px; height: 58px;
   border-radius: 50%; background: #f7e8b0;
-  box-shadow: 0 0 34px 8px rgba(247, 232, 176, .45);
+  box-shadow: 0 0 38px 10px rgba(247, 232, 176, .45);
 }
-.spire { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 130px; }
-.spire-tip {
-  width: 0; height: 0; margin: 0 auto;
-  border-left: 34px solid transparent; border-right: 34px solid transparent;
-  border-bottom: 44px solid #0d0a24;
+.poster-fan .card {
+  width: 132px; min-height: 196px; margin: 0 -6px; cursor: default;
+  transform: rotate(var(--fan, 0deg)) translateY(var(--lift, 0px));
+  box-shadow: 0 12px 22px rgba(0,0,0,.55);
 }
-.spire-body {
-  width: 96px; height: 104px; margin: 0 auto; background: #141032;
-  border: 2px solid #3a3170; border-bottom: none; border-radius: 8px 8px 0 0;
-  position: relative;
+.poster-fan .card:hover {
+  transform: rotate(var(--fan, 0deg)) translateY(calc(var(--lift, 0px) - 10px)) scale(1.06);
 }
-.spire-body::before, .spire-body::after {
-  content: ""; position: absolute; width: 14px; height: 18px; border-radius: 3px;
-  background: var(--amber); box-shadow: 0 0 12px 3px rgba(255, 179, 64, .7);
-}
-.spire-body::before { left: 16px; top: 20px; }
-.spire-body::after { right: 16px; top: 52px; }
-.spire-door {
-  width: 26px; height: 36px; margin: -36px auto 0; background: #241a08;
-  border: 2px solid var(--amber); border-bottom: none; border-radius: 13px 13px 0 0;
-}
+.poster-fan .card .cost { width: 34px; height: 34px; font-size: 20px; }
+.poster-fan .card .card-name { font-size: 16px; }
+.poster-fan .card .card-art { height: 68px; }
+.poster-fan .card .card-art svg { height: 60px; }
+.poster-fan .card .card-type { font-size: 12.5px; }
+.poster-fan .card .card-text { font-size: 14.5px; }
 
 .game-title {
-  font-size: 52px; letter-spacing: 4px; color: var(--amber);
-  text-shadow: 0 3px 0 #7a4a00, 0 0 26px rgba(255, 179, 64, .5);
-  font-weight: 900; text-align: center;
+  font-family: Georgia, "Noto Serif Display", "Noto Serif", "DejaVu Serif", "Times New Roman", serif;
+  font-size: 64px; letter-spacing: 3px; color: var(--amber);
+  text-shadow: 0 3px 0 #7a4a00, 0 0 30px rgba(255, 179, 64, .55);
+  font-weight: 900; text-align: center; line-height: 1.05; margin-top: 8px;
 }
-.tagline { color: var(--muted); font-size: 17px; text-align: center; }
+.title-rule { width: 100%; max-width: 420px; height: 14px; position: relative; margin-top: -2px; }
+.title-rule::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amber) 25%, var(--amber) 75%, transparent);
+}
+.title-rule span {
+  position: absolute; left: 50%; top: 1px; width: 12px; height: 12px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--amber); border: 2px solid #0d0a24;
+}
+.tagline { color: var(--muted); font-size: 17.5px; text-align: center; }
+
+.poster-stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.poster-stat {
+  background: #0d0a24; border: 2px solid #5a4fa3; border-radius: 999px;
+  padding: 4px 14px; font-size: 14px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .6px;
+}
+.poster-stat b { color: var(--amber); font-size: 16px; }
+
+.start-btn { font-size: 25px; padding: 16px 44px; min-height: 66px; border-radius: 16px; }
 
 .tutorial h2 { font-size: 19px; color: var(--amber); margin-bottom: 8px; }
 .tutorial ul { list-style: none; display: flex; flex-direction: column; gap: 7px; font-size: 15.5px; line-height: 1.35; }
@@ -127,13 +148,7 @@ body {
   background: transparent; color: var(--muted); border: 2px solid #453a85;
   border-radius: 10px; padding: 7px 14px;
 }
-.hint { color: var(--muted); font-size: 13.5px; }
-
-.sample-cards { display: flex; gap: 10px; justify-content: center; margin: 2px 0; }
-.sample-cards .card { margin: 0; width: 126px; min-height: 178px; cursor: default; }
-.sample-cards .card:nth-child(1) { transform: rotate(-4deg); }
-.sample-cards .card:nth-child(3) { transform: rotate(4deg); }
-.sample-cards .card:hover { transform: translateY(-6px) scale(1.04); }
+.hint { color: var(--muted); font-size: 13.5px; text-align: center; }
 
 /* ---------- Battle ---------- */
 #screen-battle { padding-top: 8px; }
@@ -375,4 +390,21 @@ body {
   .hp-bar { width: 200px; }
   .enemy-name { font-size: 21px; }
   .game-title { font-size: 42px; }
+  /* Poster fan shrinks and flattens with the phone so the edge cards
+     never clip and their text stays clear of the neighbours. */
+  .poster-fan { height: 186px; }
+  .poster-fan .card {
+    width: 90px; min-height: 146px; margin: 0 -8px; padding: 6px 6px 5px;
+    transform: rotate(calc(var(--fan, 0deg) * 0.6)) translateY(var(--lift, 0px));
+  }
+  .poster-fan .card:hover {
+    transform: rotate(calc(var(--fan, 0deg) * 0.6)) translateY(calc(var(--lift, 0px) - 10px)) scale(1.06);
+  }
+  .poster-fan .card .cost { width: 26px; height: 26px; font-size: 15px; }
+  .poster-fan .card .card-name { font-size: 12px; }
+  .poster-fan .card .card-art { height: 44px; }
+  .poster-fan .card .card-art svg { height: 38px; }
+  .poster-fan .card .card-type { font-size: 10px; }
+  .poster-fan .card .card-text { font-size: 11.5px; }
+  .start-btn { font-size: 22px; padding: 14px 30px; }
 }

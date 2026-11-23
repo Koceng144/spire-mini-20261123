@@ -5,7 +5,7 @@
 
 import { createBattle, playCard, beginEnemyTurn, resolveEnemyTurn, drainEvents, collectDeck } from './battle.js';
 import { createRun, currentEnemy, rewardChoices, takeReward, upgradeableCards, upgradeCard, advanceRun, runFinished, FLOORS, REST_HEAL } from './state.js';
-import { showScreen, renderBattle, renderReward, renderUpgrade, renderStats, renderDeckList, spawnFloater, shakeEnemy } from './render.js';
+import { showScreen, renderBattle, renderReward, renderUpgrade, renderStats, renderDeckList, renderSampleCards, spawnFloater, shakeEnemy } from './render.js';
 import { attachInput } from './input.js';
 import { sfx, setMuted, isMuted } from './audio.js';
 import { stageShot } from './shots.js';
@@ -176,6 +176,7 @@ function wireButtons() {
 
 function boot() {
   wireButtons();
+  renderSampleCards($('poster-fan'));
   $('btn-mute').textContent = isMuted() ? '🔇 Sound: off' : '🔊 Sound: on';
   attachInput({ onPlayCard, onEndTurn, onToggleMute: toggleMute });
   // Refit the hand when the viewport changes (rotation, window resize).
