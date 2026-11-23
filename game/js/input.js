@@ -20,7 +20,11 @@ export function attachInput({ onPlayCard, onEndTurn, onToggleMute }) {
 
   hand.addEventListener('pointerdown', (ev) => {
     const el = cardFromEvent(ev);
-    if (!el || el.classList.contains('unplayable')) return;
+    if (!el) return;
+    // Touch has no hover: pressing lifts the card so its text can be read,
+    // even when the card cannot be played right now.
+    el.classList.add('pressed');
+    if (el.classList.contains('unplayable')) return;
     drag = {
       el,
       index: Number(el.dataset.index),
@@ -44,6 +48,8 @@ export function attachInput({ onPlayCard, onEndTurn, onToggleMute }) {
   });
 
   function finishDrag(ev) {
+    const pressedEl = hand.querySelector('.card.pressed');
+    if (pressedEl) pressedEl.classList.remove('pressed');
     if (!drag) return;
     const { el, index, moved } = drag;
     drag = null;
@@ -62,6 +68,8 @@ export function attachInput({ onPlayCard, onEndTurn, onToggleMute }) {
 
   hand.addEventListener('pointerup', finishDrag);
   hand.addEventListener('pointercancel', () => {
+    const pressedEl = hand.querySelector('.card.pressed');
+    if (pressedEl) pressedEl.classList.remove('pressed');
     if (drag) {
       drag.el.classList.remove('dragging');
       drag.el.style.transform = '';

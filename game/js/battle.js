@@ -196,9 +196,11 @@ export function canPlay(battle, instance) {
   return resolveCard(instance).cost <= battle.player.energy;
 }
 
-// End the player's turn: discard the hand, let the enemy perform its
-// telegraphed move, then start the next player turn.
-export function endPlayerTurn(battle, rng) {
+// End the player's turn in two halves so the UI can show the enemy
+// acting: beginEnemyTurn discards the hand and ticks Burn, then
+// resolveEnemyTurn performs the telegraphed move and starts the next
+// player turn. endPlayerTurn runs both back to back (tests, staging).
+export function beginEnemyTurn(battle) {
   if (battle.phase !== 'player') return;
   battle.discardPile.push(...battle.hand);
   battle.hand = [];
@@ -206,10 +208,13 @@ export function endPlayerTurn(battle, rng) {
   if (battle.player.weak > 0) battle.player.weak -= 1;
 
   battle.phase = 'enemy';
-  const e = battle.enemy;
-  e.block = 0;
+  battle.enemy.block = 0;
   tickBurn(battle, 'enemy');
-  if (battle.phase === 'won') return;
+}
+
+export function resolveEnemyTurn(battle, rng) {
+  if (battle.phase !== 'enemy') return;
+  const e = battle.enemy;
 
   const move = currentIntent(battle);
   e.moveIndex += 1;
@@ -227,6 +232,11 @@ export function endPlayerTurn(battle, rng) {
   if (battle.phase === 'lost' || battle.phase === 'won') return;
 
   startPlayerTurn(battle, rng);
+}
+
+export function endPlayerTurn(battle, rng) {
+  beginEnemyTurn(battle);
+  resolveEnemyTurn(battle, rng);
 }
 
 // The deck as it stands after the battle (for the reward/upgrade screens):

@@ -3,9 +3,9 @@
 // next floor → win/lose, with a restart back to a fresh run. Battle events
 // become floating numbers, shakes and sound effects here.
 
-import { createBattle, playCard, endPlayerTurn, drainEvents, collectDeck } from './battle.js';
-import { createRun, currentEnemy, rewardChoices, takeReward, upgradeableCards, upgradeCard, advanceRun, runFinished, FLOORS } from './state.js';
-import { showScreen, renderBattle, renderReward, renderUpgrade, renderStats, spawnFloater, shakeEnemy } from './render.js';
+import { createBattle, playCard, beginEnemyTurn, resolveEnemyTurn, drainEvents, collectDeck } from './battle.js';
+import { createRun, currentEnemy, rewardChoices, takeReward, upgradeableCards, upgradeCard, advanceRun, runFinished, FLOORS, REST_HEAL } from './state.js';
+import { showScreen, renderBattle, renderReward, renderUpgrade, renderStats, renderDeckList, spawnFloater, shakeEnemy } from './render.js';
 import { attachInput } from './input.js';
 import { sfx, setMuted, isMuted } from './audio.js';
 import { stageShot } from './shots.js';
@@ -26,13 +26,14 @@ function processEvents() {
         shakeEnemy();
         sfx.hit();
       } else {
-        spawnFloater(ev.hpLost > 0 ? 'You -' + ev.hpLost : 'Blocked!', ev.hpLost > 0 ? '' : 'blocked');
+        spawnFloater(ev.hpLost > 0 ? '-' + ev.hpLost : 'Blocked!', ev.hpLost > 0 ? '' : 'blocked', 'player');
         sfx.hurt();
       }
     } else if (ev.type === 'block') {
+      spawnFloater('🛡 +' + ev.amount, 'blocked', ev.target === 'player' ? 'player' : 'enemy');
       if (ev.target === 'player') sfx.block();
     } else if (ev.type === 'heal') {
-      spawnFloater('+' + ev.amount + ' HP', 'heal');
+      spawnFloater('+' + ev.amount + ' HP', 'heal', 'player');
       sfx.heal();
     } else if (ev.type === 'play') {
       sfx.play();
@@ -68,6 +69,7 @@ function battleOver() {
     sfx.lose();
     $('lose-sub').textContent = 'Your lantern sputters and dies on floor ' + run.floor + ', slain by the ' + battle.enemy.def.name + '.';
     renderStats('lose-stats', run);
+    renderDeckList('lose-deck', run);
     showScreen('lose');
     return;
   }
@@ -76,12 +78,13 @@ function battleOver() {
     run.stats.battlesWon += 1;
     sfx.win();
     renderStats('win-stats', run);
+    renderDeckList('win-deck', run);
     showScreen('win');
     return;
   }
   sfx.reward();
   choices = rewardChoices(run);
-  $('reward-sub').textContent = 'Floor ' + run.floor + ' cleared! Add one card, upgrade one you own, or skip. You rest and heal 5 HP.';
+  $('reward-sub').textContent = 'Floor ' + run.floor + ' cleared! Add one card, upgrade one you own, or skip. You rest and heal ' + REST_HEAL + ' HP.';
   renderReward(choices);
   showScreen('reward');
 }
@@ -113,13 +116,23 @@ function onEndTurn() {
   if (!battle || busy || battle.phase !== 'player') return;
   busy = true;
   run.stats.turnsTaken += 1;
-  endPlayerTurn(battle, run.rng);
+  // Phase 1: hand discards, Burn ticks, and the enemy zone lights up with
+  // its telegraphed move so the player sees what is about to happen.
+  beginEnemyTurn(battle);
   processEvents();
-  refresh(true);
+  refresh(false);
   setTimeout(() => {
-    busy = false;
-    if (battle.phase === 'won' || battle.phase === 'lost') battleOver();
-  }, 500);
+    // Phase 2: the enemy performs the move, then the next turn is dealt.
+    if (battle.phase === 'enemy') {
+      resolveEnemyTurn(battle, run.rng);
+      processEvents();
+      refresh(true);
+    }
+    setTimeout(() => {
+      busy = false;
+      if (battle.phase === 'won' || battle.phase === 'lost') battleOver();
+    }, 450);
+  }, 750);
 }
 
 function newRun(seed) {
@@ -163,7 +176,10 @@ function wireButtons() {
 
 function boot() {
   wireButtons();
+  $('btn-mute').textContent = isMuted() ? '🔇 Sound: off' : '🔊 Sound: on';
   attachInput({ onPlayCard, onEndTurn, onToggleMute: toggleMute });
+  // Refit the hand when the viewport changes (rotation, window resize).
+  window.addEventListener('resize', () => { if (battle) refresh(false); });
   const params = new URLSearchParams(location.search);
   const shot = params.get('shot');
   if (shot) {

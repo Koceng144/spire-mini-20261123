@@ -169,6 +169,39 @@ const CARDS = [
   },
 ];
 
+// One icon per card, chosen by what the card does — never one generic
+// glyph per type. Attacks differ by weapon (dagger, hammer, fangs, bolt,
+// flame, swirl, slashes, axe); block is a shield family; burn is flame;
+// debuffs are smoke/flask; draw is a card; thorns are thorns; strength is
+// a rising arrow. render.js turns these names into inline SVG.
+const CARD_ICONS = {
+  'jab': 'dagger',
+  'guard': 'shield',
+  'flare': 'spark',
+  'heavy-blow': 'hammer',
+  'twin-fang': 'fangs',
+  'piercing-bolt': 'bolt',
+  'ember-arc': 'flame',
+  'reckless-swing': 'swirl',
+  'flurry': 'slashes',
+  'executioner': 'axe',
+  'iron-stance': 'shield-iron',
+  'quick-step': 'boot',
+  'battle-focus': 'cards',
+  'second-wind': 'cross',
+  'adrenaline': 'lightning',
+  'smoke-bomb': 'smoke',
+  'venom-flask': 'flask',
+  'bulwark': 'wall',
+  'might': 'arrow-up',
+  'agility': 'feather',
+  'thorn-mail': 'thorns',
+  'regrowth': 'sprout',
+  'lantern-glow': 'lantern',
+  'keen-eye': 'eye',
+};
+for (const c of CARDS) c.icon = CARD_ICONS[c.id];
+
 const BY_ID = new Map(CARDS.map((c) => [c.id, c]));
 
 export function cardDef(id) {

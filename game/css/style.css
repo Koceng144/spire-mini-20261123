@@ -47,6 +47,14 @@ body {
   overflow-y: auto;
 }
 
+/* Non-battle screens centre their content vertically instead of leaving
+   a dead zone at the bottom; primary actions pin to the thumb zone. */
+#screen-title, #screen-reward, #screen-upgrade, #screen-win, #screen-lose {
+  justify-content: safe center;
+}
+#screen-win .big-btn, #screen-lose .big-btn { margin-top: auto; }
+.reward-actions { margin-top: auto; }
+
 .hidden { display: none !important; }
 
 .panel {
@@ -144,6 +152,10 @@ body {
   transition: box-shadow .15s;
 }
 .enemy-zone.drop-target { box-shadow: 0 0 0 3px var(--amber), 0 0 24px rgba(255,179,64,.55); }
+/* While the enemy acts, its zone and intent badge pulse so the move reads. */
+.enemy-zone.acting { box-shadow: 0 0 0 3px #ff6b4a, 0 0 26px rgba(255,107,74,.5); }
+.enemy-zone.acting .intent-badge { animation: intentPulse .7s ease-in-out infinite alternate; }
+@keyframes intentPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.12); } }
 .enemy-zone.shake { animation: shake .3s; }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -202,7 +214,9 @@ body {
   100% { transform: translateY(-52px) scale(1); opacity: 0; }
 }
 
-.player-zone { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 8px; }
+/* The hand and End Turn button sit at the bottom of the screen, in thumb
+   reach, with the enemy zone anchored at the top. */
+.player-zone { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 8px; margin-top: auto; position: relative; }
 .player-stats { display: grid; grid-template-columns: 1.5fr 1fr .8fr 1fr; gap: 7px; }
 .stat-box {
   background: var(--panel); border: 2px solid #453a85; border-radius: 12px;
@@ -220,19 +234,32 @@ body {
 /* ---------- Cards ---------- */
 .hand {
   display: flex; justify-content: center; align-items: flex-end;
-  min-height: 196px; padding-top: 14px; position: relative;
+  min-height: 204px; padding-top: 30px; position: relative;
 }
 .card {
-  width: 118px; min-height: 172px; flex: 0 0 auto;
+  width: var(--card-w, 118px); min-height: 172px; flex: 0 0 auto;
   background: var(--card-bg); color: var(--card-ink);
   border: 3px solid #0d0a24; border-radius: 12px;
-  margin: 0 -7px; padding: 7px 7px 6px;
+  margin: 0; padding: 7px 7px 6px;
   display: flex; flex-direction: column; gap: 4px;
   cursor: pointer; position: relative; user-select: none; touch-action: none;
   transition: transform .16s ease, box-shadow .16s ease;
   box-shadow: 0 5px 10px rgba(0,0,0,.45);
   transform-origin: 50% 100%;
+  transform: rotate(var(--fan, 0deg));
 }
+/* Compact hand cards on narrow screens: the name stacks under the cost
+   badge so it gets the card's full visible width, and type shrinks so
+   name, cost and effect text stay readable instead of hiding under a
+   neighbour. */
+.card.compact { min-height: 168px; padding: 6px 6px 5px; gap: 3px; }
+.card.compact .card-top { flex-direction: column; align-items: flex-start; gap: 1px; }
+.card.compact .cost { width: 24px; height: 24px; font-size: 14px; }
+.card.compact .card-name { font-size: 11.5px; line-height: 1.1; overflow-wrap: anywhere; }
+.card.compact .card-art { height: 34px; }
+.card.compact .card-art svg { height: 28px; }
+.card.compact .card-type { font-size: 10px; letter-spacing: .5px; }
+.card.compact .card-text { font-size: 11px; line-height: 1.25; }
 .card .card-top { display: flex; align-items: center; gap: 5px; }
 .card .cost {
   width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%;
@@ -264,9 +291,12 @@ body {
   from { transform: translateY(46px) rotate(5deg); opacity: 0; }
   to { opacity: 1; }
 }
-.card:hover:not(.unplayable), .card:focus-visible:not(.unplayable) {
-  transform: translateY(-20px) scale(1.07); z-index: 6;
-  box-shadow: 0 14px 22px rgba(0,0,0,.55);
+/* Hover, keyboard focus or touch-press lifts the card clear of its
+   neighbours and enlarges it so its text can be read in full. Unplayable
+   cards lift too (reading is free; playing is still blocked). */
+.card:hover, .card:focus-visible, .card.pressed {
+  transform: translateY(-28px) scale(1.16) rotate(0deg); z-index: 30;
+  box-shadow: 0 16px 26px rgba(0,0,0,.6);
 }
 .card.dragging { transition: none; z-index: 20; box-shadow: 0 18px 28px rgba(0,0,0,.6); }
 .card.played { animation: playFly .38s ease forwards; }
@@ -298,13 +328,51 @@ body {
 .deck-grid .card:hover { transform: translateY(-6px) scale(1.04); }
 
 .end-art { font-size: 84px; margin-top: 22px; text-shadow: 0 0 30px rgba(255,179,64,.6); }
+/* The lose screen reads cold and dark against the win screen's glow. */
+#screen-lose { background: radial-gradient(120% 90% at 50% 0%, #241426 0%, #0d0a18 65%); }
+.end-art.lose { filter: grayscale(.75) brightness(.75); text-shadow: none; opacity: .85; }
+#screen-lose .panel { border-color: #5a3040; }
 .stats-panel { display: flex; flex-direction: column; gap: 6px; font-size: 17px; }
 .stats-panel .stat-line { display: flex; justify-content: space-between; }
 .stats-panel b { color: var(--amber); }
+
+/* Final deck list on the win/lose screens: compact chips, cost + name. */
+.deck-list { display: flex; flex-direction: column; gap: 7px; }
+.deck-list h3 { font-size: 15px; color: var(--amber); text-transform: uppercase; letter-spacing: 1px; }
+.deck-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.deck-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--card-bg); color: var(--card-ink);
+  border: 2px solid #0d0a24; border-radius: 999px; padding: 3px 10px 3px 4px;
+  font-size: 13px; font-weight: 700;
+}
+.deck-chip .chip-cost {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--amber);
+  border: 2px solid #0d0a24; color: #3a2400; font-weight: 900; font-size: 12.5px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.deck-chip.type-attack { border-left: 6px solid var(--red); }
+.deck-chip.type-skill { border-left: 6px solid var(--blue); }
+.deck-chip.type-power { border-left: 6px solid var(--purple); }
+.deck-chip.upgraded { background: linear-gradient(180deg, #fff3c4, var(--card-bg)); }
 
 @media (max-height: 700px) {
   .enemy-portrait { height: 104px; }
   .enemy-portrait svg { height: 104px; }
   .card { min-height: 156px; }
   .hand { min-height: 176px; }
+}
+
+/* Narrow phones (360–430px): keep the stat row inside the screen. */
+@media (max-width: 430px) {
+  .screen { padding: 10px 8px 8px; }
+  .player-stats { gap: 5px; }
+  .stat-box { padding: 5px 4px; }
+  .stat-label { font-size: 10.5px; letter-spacing: 0; }
+  .stat-value { font-size: 17px; }
+  .hp-bar.small { width: 100%; max-width: 110px; }
+  .hp-text { min-width: 0; font-size: 14.5px; }
+  .hp-bar { width: 200px; }
+  .enemy-name { font-size: 21px; }
+  .game-title { font-size: 42px; }
 }

@@ -28,9 +28,9 @@
       </ul>
     </div>
     <div class="sample-cards" aria-hidden="true">
-      <div class="card type-attack"><div class="card-top"><div class="cost">1</div><div class="card-name">Lantern Jab</div></div><div class="card-art" style="background:#e4572e33"><svg viewBox="0 0 40 40"><path d="M8 32 L26 8 L32 14 L14 34 Z" fill="#8a93a6" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#e4572e"><span class="shape diamond" style="background:#e4572e"></span>Attack</div><div class="card-text">Deal 6 damage.</div></div>
-      <div class="card type-skill"><div class="card-top"><div class="cost">1</div><div class="card-name">Iron Stance</div></div><div class="card-art" style="background:#2e86ab33"><svg viewBox="0 0 40 40"><path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#9fd4ec" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#2e86ab"><span class="shape circle" style="background:#2e86ab"></span>Skill</div><div class="card-text">Gain 8 Block.</div></div>
-      <div class="card type-power"><div class="card-top"><div class="cost">2</div><div class="card-name">Keen Eye</div></div><div class="card-art" style="background:#8e44ad33"><svg viewBox="0 0 40 40"><path d="M20 3 L24 15 L37 15 L27 23 L30 36 L20 28 L10 36 L13 23 L3 15 L16 15 Z" fill="#e9c46a" stroke="#0d0a24" stroke-width="2"/></svg></div><div class="card-type" style="color:#8e44ad"><span class="shape triangle" style="color:#8e44ad"></span>Power</div><div class="card-text">Draw 1 extra card each turn.</div></div>
+      <div class="card type-attack"><div class="card-top"><div class="cost">1</div><div class="card-name">Lantern Jab</div></div><div class="card-art" style="background:#e4572e33"><svg viewBox="0 0 40 40"><path d="M12 28 L28 8 L32 12 L18 30 Z" fill="#aeb8cc" stroke="#0d0a24" stroke-width="2"/><rect x="7" y="26" width="11" height="5" rx="2" transform="rotate(-45 12 28)" fill="#7a4a21" stroke="#0d0a24" stroke-width="1.6"/></svg></div><div class="card-type" style="color:#e4572e"><span class="shape diamond" style="background:#e4572e"></span>Attack</div><div class="card-text">Deal 6 damage.</div></div>
+      <div class="card type-skill"><div class="card-top"><div class="cost">1</div><div class="card-name">Iron Stance</div></div><div class="card-art" style="background:#2e86ab33"><svg viewBox="0 0 40 40"><path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#7fb6d9" stroke="#0d0a24" stroke-width="2"/><path d="M20 9 V32 M9 16 H31" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="16" r="2.6" fill="#0d0a24"/></svg></div><div class="card-type" style="color:#2e86ab"><span class="shape circle" style="background:#2e86ab"></span>Skill</div><div class="card-text">Gain 8 Block.</div></div>
+      <div class="card type-power"><div class="card-top"><div class="cost">2</div><div class="card-name">Keen Eye</div></div><div class="card-art" style="background:#8e44ad33"><svg viewBox="0 0 40 40"><path d="M4 20 C10 10 16 7 20 7 C24 7 30 10 36 20 C30 30 24 33 20 33 C16 33 10 30 4 20 Z" fill="#f5efdd" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="#8e44ad" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="20" r="2.4" fill="#0d0a24"/></svg></div><div class="card-type" style="color:#8e44ad"><span class="shape triangle" style="color:#8e44ad"></span>Power</div><div class="card-text">Draw 1 extra card each turn.</div></div>
     </div>
     <button id="btn-start" class="big-btn primary">▶ Start the climb</button>
     <button id="btn-mute" class="small-btn">🔊 Sound: on</button>
@@ -58,6 +58,7 @@
     </div>
 
     <div class="player-zone">
+      <div id="player-floaters" class="floaters"></div>
       <div class="player-stats">
         <div class="stat-box">
           <div class="stat-label">❤ HP</div>
@@ -108,6 +109,7 @@
     <h2 class="screen-title win">THE SPIRE IS LIT!</h2>
     <p class="screen-sub">The Lantern Warden falls. Your lantern burns at the top of the spire.</p>
     <div id="win-stats" class="stats-panel panel"></div>
+    <div id="win-deck" class="deck-list panel"></div>
     <button id="btn-win-restart" class="big-btn primary">↻ Climb again</button>
   </section>
 
@@ -117,6 +119,7 @@
     <h2 class="screen-title lose">THE LIGHT GOES OUT</h2>
     <p class="screen-sub" id="lose-sub">Your lantern sputters and dies on floor 1.</p>
     <div id="lose-stats" class="stats-panel panel"></div>
+    <div id="lose-deck" class="deck-list panel"></div>
     <button id="btn-lose-restart" class="big-btn primary">↻ Try again</button>
   </section>
 

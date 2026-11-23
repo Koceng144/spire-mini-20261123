@@ -8,7 +8,7 @@ import { makeRng, pickDistinct } from './random.js';
 
 export const MAX_HP = 50;
 export const FLOORS = 3;
-export const REST_HEAL = 5;
+export const REST_HEAL = 3;
 
 export function createRun(seed) {
   const rng = makeRng(seed);

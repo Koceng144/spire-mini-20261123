@@ -3,7 +3,11 @@
 // headless test) simply stays silent instead of throwing.
 
 let ctx = null;
+// The mute choice persists across sessions; storage may be unavailable
+// (private mode, odd file origins), so every access is guarded.
+const MUTE_KEY = 'spire-mini-muted';
 let muted = false;
+try { muted = window.localStorage.getItem(MUTE_KEY) === '1'; } catch (e) { muted = false; }
 
 function ensureContext() {
   if (ctx || muted) return ctx;
@@ -18,6 +22,7 @@ function ensureContext() {
 
 export function setMuted(value) {
   muted = !!value;
+  try { window.localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) { /* keep playing */ }
 }
 
 export function isMuted() {

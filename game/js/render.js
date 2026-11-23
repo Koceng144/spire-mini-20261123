@@ -17,14 +17,40 @@ export function showScreen(name) {
 
 // --- Original SVG art -------------------------------------------------------
 
-function typeIcon(type) {
-  if (type === 'attack') {
-    return '<svg viewBox="0 0 40 40"><path d="M8 32 L26 8 L32 14 L14 34 Z" fill="#8a93a6" stroke="#0d0a24" stroke-width="2"/><rect x="6" y="28" width="10" height="5" rx="2" transform="rotate(-45 11 30)" fill="#7a4a21" stroke="#0d0a24" stroke-width="1.6"/></svg>';
-  }
-  if (type === 'skill') {
-    return '<svg viewBox="0 0 40 40"><path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#9fd4ec" stroke="#0d0a24" stroke-width="2"/><path d="M20 9 V32" stroke="#0d0a24" stroke-width="2"/></svg>';
-  }
-  return '<svg viewBox="0 0 40 40"><path d="M20 3 L24 15 L37 15 L27 23 L30 36 L20 28 L10 36 L13 23 L3 15 L16 15 Z" fill="#e9c46a" stroke="#0d0a24" stroke-width="2"/></svg>';
+// One small original SVG per effect icon (names come from cards.js).
+// Every card shows what it does: weapons for attacks, shields for block,
+// flame for burn, smoke/flask for debuffs, a card for draw, thorns for
+// thorns, a rising arrow for strength — powers never share one glyph.
+const ICONS = {
+  dagger: '<path d="M12 28 L28 8 L32 12 L18 30 Z" fill="#aeb8cc" stroke="#0d0a24" stroke-width="2"/><rect x="7" y="26" width="11" height="5" rx="2" transform="rotate(-45 12 28)" fill="#7a4a21" stroke="#0d0a24" stroke-width="1.6"/>',
+  hammer: '<rect x="8" y="6" width="22" height="11" rx="2" fill="#8a93a6" stroke="#0d0a24" stroke-width="2"/><rect x="17" y="16" width="6" height="18" rx="2" fill="#7a4a21" stroke="#0d0a24" stroke-width="1.8"/>',
+  fangs: '<path d="M10 6 L16 6 L13 24 Z" fill="#f5efdd" stroke="#0d0a24" stroke-width="2"/><path d="M24 6 L30 6 L27 24 Z" fill="#f5efdd" stroke="#0d0a24" stroke-width="2"/><path d="M8 30 Q20 24 32 30" stroke="#0d0a24" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+  bolt: '<path d="M8 32 L26 14" stroke="#7a4a21" stroke-width="4" stroke-linecap="round"/><path d="M24 6 L34 6 L34 16 L27 13 Z" fill="#aeb8cc" stroke="#0d0a24" stroke-width="2"/><path d="M8 32 L6 24 M8 32 L16 34" stroke="#e4572e" stroke-width="3.5" stroke-linecap="round"/>',
+  flame: '<path d="M20 4 C24 12 30 15 30 24 A10 10 0 1 1 10 24 C10 17 14 14 16 9 C18 13 20 14 20 14 C20 10 20 7 20 4 Z" fill="#ff8c42" stroke="#0d0a24" stroke-width="2"/><path d="M20 18 C22 21 24 22 24 26 A4 4 0 1 1 16 26 C16 23 18 21 20 18 Z" fill="#ffd23f"/>',
+  spark: '<path d="M20 4 L23 16 L36 20 L23 24 L20 36 L17 24 L4 20 L17 16 Z" fill="#ffd23f" stroke="#0d0a24" stroke-width="2"/>',
+  swirl: '<path d="M30 12 A12 12 0 1 0 32 24" stroke="#e4572e" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M24 5 L33 6 L31 15 Z" fill="#e4572e" stroke="#0d0a24" stroke-width="1.6"/>',
+  slashes: '<path d="M10 30 L22 10 M18 32 L30 12 M26 34 L36 16" stroke="#aeb8cc" stroke-width="4" stroke-linecap="round"/><path d="M10 30 L22 10 M18 32 L30 12 M26 34 L36 16" stroke="#0d0a24" stroke-width="1" stroke-linecap="round" opacity=".35"/>',
+  axe: '<rect x="17" y="14" width="6" height="22" rx="2" transform="rotate(18 20 25)" fill="#7a4a21" stroke="#0d0a24" stroke-width="1.8"/><path d="M14 6 C24 2 32 6 34 14 C28 16 22 15 18 12 C15 10 14 8 14 6 Z" fill="#aeb8cc" stroke="#0d0a24" stroke-width="2"/>',
+  shield: '<path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#9fd4ec" stroke="#0d0a24" stroke-width="2"/><path d="M20 9 V32" stroke="#0d0a24" stroke-width="2"/>',
+  'shield-iron': '<path d="M20 4 L34 9 V20 C34 29 27 34 20 37 C13 34 6 29 6 20 V9 Z" fill="#7fb6d9" stroke="#0d0a24" stroke-width="2"/><path d="M20 9 V32 M9 16 H31" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="16" r="2.6" fill="#0d0a24"/>',
+  wall: '<rect x="6" y="10" width="28" height="22" rx="2" fill="#b08968" stroke="#0d0a24" stroke-width="2"/><path d="M6 17 H34 M6 25 H34 M15 10 V17 M25 17 V25 M15 25 V32" stroke="#0d0a24" stroke-width="1.8"/>',
+  boot: '<path d="M12 4 H24 V20 L34 26 V34 H12 Z" fill="#58b368" stroke="#0d0a24" stroke-width="2"/><path d="M12 30 H34" stroke="#0d0a24" stroke-width="2"/>',
+  cards: '<rect x="12" y="8" width="18" height="24" rx="3" transform="rotate(10 21 20)" fill="#f5efdd" stroke="#0d0a24" stroke-width="2"/><rect x="8" y="9" width="18" height="24" rx="3" transform="rotate(-8 17 21)" fill="#ffd23f" stroke="#0d0a24" stroke-width="2"/>',
+  cross: '<path d="M16 6 H24 V16 H34 V24 H24 V34 H16 V24 H6 V16 H16 Z" fill="#7dd87d" stroke="#0d0a24" stroke-width="2"/>',
+  lightning: '<path d="M23 3 L10 22 H18 L15 37 L30 16 H21 Z" fill="#ffd23f" stroke="#0d0a24" stroke-width="2"/>',
+  smoke: '<circle cx="15" cy="24" r="8" fill="#b9b2d9" stroke="#0d0a24" stroke-width="2"/><circle cx="25" cy="19" r="9" fill="#cfc8ec" stroke="#0d0a24" stroke-width="2"/><circle cx="27" cy="27" r="6" fill="#b9b2d9" stroke="#0d0a24" stroke-width="2"/>',
+  flask: '<path d="M16 5 H24 M18 5 V14 L10 30 A3 3 0 0 0 13 34 H27 A3 3 0 0 0 30 30 L22 14 V5" fill="#c2f2c2" stroke="#0d0a24" stroke-width="2"/><path d="M20 20 C22 23 23 24 23 26 A3 3 0 1 1 17 26 C17 24 18 23 20 20 Z" fill="#58b368"/>',
+  'arrow-up': '<path d="M20 4 L32 18 H25 V36 H15 V18 H8 Z" fill="#e4572e" stroke="#0d0a24" stroke-width="2"/>',
+  feather: '<path d="M30 5 C16 8 8 18 8 32 L10 34 C24 32 32 20 30 5 Z" fill="#9fd4ec" stroke="#0d0a24" stroke-width="2"/><path d="M10 32 C16 22 22 14 28 8" stroke="#0d0a24" stroke-width="1.8" fill="none"/>',
+  thorns: '<path d="M20 3 L23 12 L32 7 L27 16 L36 16 L28 22 L35 28 L26 27 L28 36 L20 29 L12 36 L14 27 L5 28 L12 22 L4 16 L13 16 L8 7 L17 12 Z" fill="#58b368" stroke="#0d0a24" stroke-width="1.8"/>',
+  sprout: '<path d="M20 36 V22" stroke="#0d0a24" stroke-width="3" stroke-linecap="round"/><path d="M20 22 C20 14 14 10 6 10 C6 18 12 22 20 22 Z" fill="#7dd87d" stroke="#0d0a24" stroke-width="2"/><path d="M20 18 C20 11 25 7 33 7 C33 14 28 18 20 18 Z" fill="#58b368" stroke="#0d0a24" stroke-width="2"/>',
+  lantern: '<path d="M16 8 H24 M20 8 V5" stroke="#0d0a24" stroke-width="2.5"/><rect x="11" y="10" width="18" height="22" rx="3" fill="#2b2118" stroke="#0d0a24" stroke-width="2"/><rect x="15" y="14" width="10" height="14" rx="2" fill="#ffd23f"/><circle cx="20" cy="21" r="3" fill="#fff3c4"/>',
+  eye: '<path d="M4 20 C10 10 16 7 20 7 C24 7 30 10 36 20 C30 30 24 33 20 33 C16 33 10 30 4 20 Z" fill="#f5efdd" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="#8e44ad" stroke="#0d0a24" stroke-width="2"/><circle cx="20" cy="20" r="2.4" fill="#0d0a24"/>',
+};
+
+function cardIcon(card) {
+  const body = ICONS[card.icon] || ICONS.spark;
+  return '<svg viewBox="0 0 40 40">' + body + '</svg>';
 }
 
 function enemySvg(glyph, hue) {
@@ -56,7 +82,7 @@ export function cardElement(instance, opts = {}) {
   el.innerHTML =
     '<div class="card-top"><div class="cost">' + card.cost + '</div>' +
     '<div class="card-name">' + card.displayName + '</div></div>' +
-    '<div class="card-art" style="background:' + type.color + '33">' + typeIcon(card.type) + '</div>' +
+    '<div class="card-art" style="background:' + type.color + '33">' + cardIcon(card) + '</div>' +
     '<div class="card-type" style="color:' + type.color + '">' +
     '<span class="shape ' + type.shape + '" style="background:' + type.color + ';color:' + type.color + '"></span>' +
     type.label + '</div>' +
@@ -85,6 +111,7 @@ export function renderBattle(battle, run, opts = {}) {
   const e = battle.enemy;
 
   $('floor-banner').textContent = 'Floor ' + run.floor + ' of 3';
+  $('enemy-zone').classList.toggle('acting', battle.phase === 'enemy');
   const turnBanner = $('turn-banner');
   turnBanner.textContent = battle.phase === 'enemy' ? 'Enemy turn…' : 'Your turn · ' + battle.turn;
   turnBanner.classList.toggle('enemy', battle.phase === 'enemy');
@@ -128,27 +155,59 @@ export function renderBattle(battle, run, opts = {}) {
       el.classList.add('dealing');
       el.style.animationDelay = (i * 70) + 'ms';
     }
-    const mid = (battle.hand.length - 1) / 2;
-    el.style.transform = 'rotate(' + ((i - mid) * 3) + 'deg)';
     el.dataset.index = String(i);
     hand.appendChild(el);
   });
+  layoutHand(hand);
 
   $('btn-end-turn').disabled = battle.phase !== 'player';
+}
+
+// Fit the hand inside its container: shrink cards first (down to a readable
+// floor), then overlap only as much as needed. At phone widths a normal
+// 5-card hand keeps name, cost and effect text fully visible; the fan
+// rotation rides on a CSS variable so the hover/press lift still applies.
+export function layoutHand(hand) {
+  const cards = [...hand.children];
+  const n = cards.length;
+  if (!n) return;
+  // The hand may fan wider than its 500px column on wide screens (up to
+  // the 560px app width), matching the original desktop look.
+  const containerW = Math.max(hand.clientWidth || 332, Math.min(560, window.innerWidth - 16));
+  const BASE_W = 118, MIN_W = 78;
+  let cardW = BASE_W;
+  let overlap = 0;
+  const total = () => n * cardW - (n - 1) * overlap;
+  while (total() > containerW && cardW > MIN_W) cardW -= 2;
+  if (total() > containerW && n > 1) {
+    overlap = Math.ceil((n * cardW - containerW) / (n - 1));
+  }
+  const compact = cardW < 104;
+  const mid = (n - 1) / 2;
+  cards.forEach((el, i) => {
+    el.style.width = cardW + 'px';
+    el.style.marginLeft = i === 0 ? '0' : -overlap + 'px';
+    el.classList.toggle('compact', compact);
+    el.style.setProperty('--fan', ((i - mid) * (compact ? 2 : 3)) + 'deg');
+    // No inline z-index: DOM order fans later cards on top, and the
+    // hover/press lift (z-index 30 in CSS) must be able to win.
+  });
 }
 
 // --- Floating combat numbers ---------------------------------------------------
 
 let floaterSeq = 0;
-export function spawnFloater(text, kind) {
-  const zone = $('floaters');
+// target: 'enemy' (default) floats over the enemy portrait; 'player'
+// floats over the player's stat row, where damage/block/heal land.
+export function spawnFloater(text, kind, target) {
+  const zone = $(target === 'player' ? 'player-floaters' : 'floaters');
   const el = document.createElement('div');
   el.className = 'floater ' + (kind || '');
   el.textContent = text;
   const x = 38 + ((floaterSeq * 13) % 26);
   floaterSeq++;
   el.style.left = x + '%';
-  el.style.top = '34%';
+  el.style.top = target === 'player' ? '6%' : '34%';
   zone.appendChild(el);
   setTimeout(() => el.remove(), 1050);
 }
@@ -187,6 +246,18 @@ export function renderUpgrade(cards) {
   if (cards.length === 0) {
     wrap.innerHTML = '<p class="screen-sub">Every card in your deck is already upgraded.</p>';
   }
+}
+
+// The final deck as compact chips (cost + name), grouped by type so the
+// end screens show exactly what the run was built from.
+export function renderDeckList(elId, run) {
+  const order = { attack: 0, skill: 1, power: 2 };
+  const cards = run.deck.map((c) => resolveCard(c))
+    .sort((a, b) => (order[a.type] - order[b.type]) || a.displayName.localeCompare(b.displayName));
+  const chips = cards.map((c) =>
+    '<span class="deck-chip type-' + c.type + (c.upgraded ? ' upgraded' : '') + '">' +
+    '<span class="chip-cost">' + c.cost + '</span>' + c.displayName + '</span>').join('');
+  $(elId).innerHTML = '<h3>Final deck · ' + cards.length + ' cards</h3><div class="deck-chips">' + chips + '</div>';
 }
 
 export function renderStats(elId, run) {

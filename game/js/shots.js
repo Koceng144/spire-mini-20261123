@@ -4,9 +4,9 @@
 // screens. Normal play never passes through here.
 
 import { createBattle, playCard, endPlayerTurn } from './battle.js';
-import { createRun, currentEnemy, rewardChoices } from './state.js';
+import { createRun, currentEnemy, rewardChoices, REST_HEAL } from './state.js';
 import { makeCard } from './cards.js';
-import { showScreen, renderReward, renderStats } from './render.js';
+import { showScreen, renderReward, renderStats, renderDeckList } from './render.js';
 
 function stageBattle(seed) {
   const run = createRun(seed);
@@ -39,7 +39,7 @@ function stageReward(seed) {
   run.playerHp = 44;
   const choices = rewardChoices(run);
   document.getElementById('reward-sub').textContent =
-    'Floor 1 cleared! Add one card, upgrade one you own, or skip. You rest and heal 5 HP.';
+    'Floor 1 cleared! Add one card, upgrade one you own, or skip. You rest and heal ' + REST_HEAL + ' HP.';
   renderReward(choices);
   showScreen('reward');
   return { run, battle: null, choices };
@@ -52,11 +52,13 @@ function stageEnd(seed, won) {
   run.stats = { battlesWon: won ? 3 : 1, cardsPlayed: 34, damageDealt: 187, turnsTaken: 14 };
   if (won) {
     renderStats('win-stats', run);
+    renderDeckList('win-deck', run);
     showScreen('win');
   } else {
     document.getElementById('lose-sub').textContent =
       'Your lantern sputters and dies on floor 2, slain by the Thorn Brute.';
     renderStats('lose-stats', run);
+    renderDeckList('lose-deck', run);
     showScreen('lose');
   }
   return { run, battle: null };
